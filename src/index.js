@@ -17,7 +17,6 @@ refs.form.addEventListener('submit', async event => {
   fetch.resetPage();
   deleteLayout();
   imagesShown = 0;
-  refs.button.classList.add('is-hidden');
   if (!event.currentTarget.elements.searchQuery.value) {
     return;
   }
