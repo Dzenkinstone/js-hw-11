@@ -1,6 +1,8 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
 import { Fetch } from '../src/fetchImages.js';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 const fetch = new Fetch();
 console.log(fetch);
 
@@ -16,16 +18,22 @@ refs.form.addEventListener('submit', async event => {
   event.preventDefault();
   fetch.resetPage();
   deleteLayout();
-  imagesShown = 0;
   if (!event.currentTarget.elements.searchQuery.value) {
     return;
   }
+  imagesShown = 0;
   fetch.query = event.currentTarget.elements.searchQuery.value;
   try {
     const responce = await fetch.fetchImages();
+    if (!responce.totalHits) {
+      refs.button.classList.add('is-active');
+      return Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    }
+    Notiflix.Notify.success(`Hooray! We found ${responce.totalHits} images.`);
     refs.button.classList.remove('is-active');
     imagesShown += responce.hits.length;
-    console.log(imagesShown);
     appendLayout(responce);
   } catch (error) {
     console.log(error);
@@ -52,35 +60,37 @@ refs.button.addEventListener('click', async () => {
 
 function appendLayout(responce) {
   try {
-    if (!responce.total) {
-      refs.button.classList.add('is-active');
-      return Notiflix.Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-    }
     refs.div.insertAdjacentHTML(
       'beforeend',
       responce.hits
         .map(
-          element =>
+          ({
+            largeImageURL,
+            webformatURL,
+            tags,
+            likes,
+            views,
+            comments,
+            downloads,
+          }) =>
             `<div class="photo-card">
-        <img src="${element.webformatURL}" width="300" height="200" alt="${element.tags}" loading="lazy" />
+        <a href="${largeImageURL}"><img src="${webformatURL}" width="300" height="200" alt="${tags}" loading="lazy"/></a>
         <div class="info">
           <p class="info-item">
             <b>Likes</b>
-            <b>${element.likes}</b>
+            <b>${likes}</b>
           </p>
           <p class="info-item">
             <b>Views</b>
-            <b>${element.views}</b>
+            <b>${views}</b>
           </p>
           <p class="info-item">
             <b>Comments</b>
-            <b>${element.comments}</b>
+            <b>${comments}</b>
           </p>
           <p class="info-item">
             <b>Downloads</b>
-            <b>${element.downloads}</b>
+            <b>${downloads}</b>
           </p>
         </div>
       </div>`
@@ -90,6 +100,12 @@ function appendLayout(responce) {
   } catch (error) {
     console.log(error);
   }
+  let gallery = new SimpleLightbox('.photo-card a', {
+    captionsData: 'alt',
+    captionPosition: 'bottom',
+    captionDelay: 250,
+  });
+  gallery.refresh();
 }
 
 function deleteLayout() {
