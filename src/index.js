@@ -23,6 +23,7 @@ refs.form.addEventListener('submit', async event => {
   fetch.query = event.currentTarget.elements.searchQuery.value;
   try {
     const responce = await fetch.fetchImages();
+    refs.button.classList.remove('is-active');
     imagesShown += responce.hits.length;
     console.log(imagesShown);
     appendLayout(responce);
@@ -38,6 +39,7 @@ refs.button.addEventListener('click', async () => {
     console.log(imagesShown);
     console.log(responce.totalHits);
     if (imagesShown === responce.totalHits) {
+      refs.button.classList.add('is-active');
       return Notiflix.Notify.info(
         "We're sorry, but you've reached the end of search results."
       );
@@ -51,6 +53,7 @@ refs.button.addEventListener('click', async () => {
 function appendLayout(responce) {
   try {
     if (!responce.total) {
+      refs.button.classList.add('is-active');
       return Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
