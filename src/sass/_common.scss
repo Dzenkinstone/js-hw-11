@@ -17,6 +17,13 @@
   border: 1px solid grey;
 }
 
+.button-container {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
 .info {
   display: flex;
   padding-left: 10px;
